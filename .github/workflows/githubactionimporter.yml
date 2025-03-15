@@ -1,0 +1,21 @@
+name: gitdemo/githubactionimporter
+on:
+  push:
+    branches:
+    - "*"
+env:
+  buildConfiguration: Release
+  buildPlatform: Any CPU
+  solution: "./ClientLibrary/Samples/ClientSamples.sln"
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: nuget/setup-nuget@v1.2.0
+    - run: nuget restore ${{ env.solution }}
+    - name: install msbuild
+      uses: microsoft/setup-msbuild@v1.3.1
+    - name: run msbuild
+      run: msbuild ${{ env.solution }} /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ runner.temp }}" -p:Configuration=${{ env.buildConfiguration }} -p:Platform="${{ env.buildPlatform }}"
